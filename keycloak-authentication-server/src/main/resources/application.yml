@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          my-keycloak-provider:
+            issuer-uri: http://localhost:8180/auth/realms/micro-service-demo
+            # Individual properties can also be provided this way
+        #            token-uri: http://localhost:8080/auth/realms/amrutrealm/protocol/openid-connect/token
+        #            authorization-uri: http://localhost:8080/auth/realms/amrutrealm/protocol/openid-connect/auth
+        #            userinfo-uri: http://localhost:8080/auth/realms/amrutrealm/protocol/openid-connect/userinfo
+        #            user-name-attribute: preferred_username
+        registration:
+          keycloak-spring-gateway-client:
+            provider: my-keycloak-provider
+            client-id: micro-service-client-1
+            client-secret: e15bac9b-340b-4e8b-945f-ea4ab377aa1a
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+
+
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+      routes:
+        - id: redis-server
+          uri: http://localhost:8280
+          predicates:
+            - Path=/redis-api/**
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
